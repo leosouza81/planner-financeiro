@@ -617,8 +617,13 @@ function renderTudo(resumo, cats, cupons, mes, ano) {
   // Metas
   renderMetas(cats);
 
-  // Feed
-  renderFeed(cupons);
+  // Cartões e Feed — usa cópia independente
+  cuponsDoMes = cupons.slice();
+  filtroAtivo = 'todos';
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  document.querySelector('.filter-chip').classList.add('active');
+  renderCartoes(cuponsDoMes);
+  renderFeed(cuponsDoMes);
 }
 
 function renderDonut(cats, total) {
@@ -728,19 +733,16 @@ function renderCartoes(cupons) {
     return;
   }
 
-  // Normaliza forma de pagamento
-  function normalizarPagto(raw) {
-    if (!raw || raw === 'null' || String(raw).trim() === '') return 'Não informado';
-    const r = String(raw).trim();
-    for (const c of CARTOES) {
-      if (r.toLowerCase().includes(c.nome.toLowerCase())) return c.nome;
-    }
-    return r;
-  }
-
   const mapa = {};
   cupons.forEach(c => {
-    const pagto = normalizarPagto(c['Forma Pagamento']);
+    let pagto = normalizarPagtoFiltro(c['Forma Pagamento']);
+    // Tenta mapear para cartão conhecido
+    for (const cartao of CARTOES) {
+      if (pagto.toLowerCase().includes(cartao.nome.toLowerCase())) {
+        pagto = cartao.nome;
+        break;
+      }
+    }
     mapa[pagto] = (mapa[pagto] || 0) + parseFloat(c['Total'] || 0);
   });
 
@@ -767,16 +769,25 @@ function filtrarCartao(cartao, el) {
   document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
 
+  const fonte = cuponsDoMes.slice(); // sempre parte da lista original
   if (cartao === 'todos') {
-    renderFeed(cuponsDoMes);
+    renderFeed(fonte);
     return;
   }
 
-  const filtrados = cuponsDoMes.filter(c => {
-    const pagto = String(c['Forma Pagamento'] || '').toLowerCase();
-    return pagto.includes(cartao.toLowerCase());
+  const filtrados = fonte.filter(c => {
+    const pagto = normalizarPagtoFiltro(c['Forma Pagamento']);
+    return pagto.toLowerCase().includes(cartao.toLowerCase());
   });
   renderFeed(filtrados);
+}
+
+function normalizarPagtoFiltro(raw) {
+  if (!raw || String(raw).trim() === '' || raw === 'null') return 'Débito / Dinheiro / PIX';
+  const s = String(raw);
+  // Se for objeto Date do Sheets (não deveria chegar assim, mas por segurança)
+  if (s.includes('T') && s.includes('Z')) return 'Débito / Dinheiro / PIX';
+  return s.trim();
 }
 
 function renderFeed(cupons) {
