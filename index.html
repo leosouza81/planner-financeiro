@@ -137,6 +137,18 @@
   .status-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: .4px; }
   .s-ok   { background: var(--green-dim); color: var(--green); }
 
+  /* FILTRO CARTÕES */
+  .filter-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .filter-chip { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 20px; cursor: pointer; transition: all .15s; white-space: nowrap; }
+  .filter-chip:hover { border-color: var(--blue); color: var(--blue); }
+  .filter-chip.active { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); font-weight: 600; }
+  .pagto-grid { display: flex; flex-direction: column; gap: 10px; }
+  .pagto-row { display: flex; align-items: center; gap: 10px; }
+  .pagto-name { font-size: 13px; font-weight: 500; width: 160px; flex-shrink: 0; }
+  .pagto-bar-track { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+  .pagto-bar-fill { height: 100%; border-radius: 4px; background: var(--blue); }
+  .pagto-value { font-size: 12px; color: var(--muted); width: 90px; text-align: right; flex-shrink: 0; }
+
   /* LOADING */
   .loading { color: var(--muted); font-size: 13px; padding: 20px 0; text-align: center; }
 
@@ -303,8 +315,30 @@
       </div>
     </div>
 
+    <!-- CARTÕES -->
     <div class="card">
-      <div class="card-title">Feed de Cupons <span class="card-tag">este mês</span></div>
+      <div class="card-title">Gastos por Cartão / Pagamento <span class="card-tag" id="pagtoTag">—</span></div>
+      <div class="pagto-grid" id="pagtoChart"><div class="loading">Carregando...</div></div>
+    </div>
+
+    <!-- FEED -->
+    <div class="card">
+      <div class="card-title">
+        Feed de Cupons
+        <span class="card-tag">este mês</span>
+      </div>
+      <div class="filter-bar" id="filterBar">
+        <div class="filter-chip active" onclick="filtrarCartao('todos', this)">Todos</div>
+        <div class="filter-chip" onclick="filtrarCartao('Banco do Brasil', this)">Banco do Brasil</div>
+        <div class="filter-chip" onclick="filtrarCartao('Magalu', this)">Magalu</div>
+        <div class="filter-chip" onclick="filtrarCartao('Itaú', this)">Itaú</div>
+        <div class="filter-chip" onclick="filtrarCartao('Mercado Pago', this)">Mercado Pago</div>
+        <div class="filter-chip" onclick="filtrarCartao('Bradesco', this)">Bradesco</div>
+        <div class="filter-chip" onclick="filtrarCartao('Itaú Mãe', this)">Itaú Mãe</div>
+        <div class="filter-chip" onclick="filtrarCartao('Mercado Pago Maybi', this)">Mercado Pago Maybi</div>
+        <div class="filter-chip" onclick="filtrarCartao('PIX', this)">PIX</div>
+        <div class="filter-chip" onclick="filtrarCartao('Dinheiro', this)">Dinheiro</div>
+      </div>
       <div class="feed" id="feedContainer"><div class="loading">Carregando...</div></div>
     </div>
 
@@ -382,10 +416,35 @@ function carregarCfg() {
 }
 function salvarCfg() { try { localStorage.setItem('planner_cfg', JSON.stringify(cfg)); } catch(e){} }
 
+// ── CARTÕES CONHECIDOS ──
+const CARTOES = [
+  { nome: 'Banco do Brasil', cor: '#FFD93D', emoji: '🟡' },
+  { nome: 'Magalu',          cor: '#E74C3C', emoji: '🔴' },
+  { nome: 'Itaú',            cor: '#FF6B35', emoji: '🟠' },
+  { nome: 'Mercado Pago',    cor: '#00D084', emoji: '🟢' },
+  { nome: 'Bradesco',        cor: '#E74C3C', emoji: '🔴' },
+  { nome: 'Itaú Mãe',       cor: '#FFB347', emoji: '🟠' },
+  { nome: 'Mercado Pago Maybi', cor: '#58A6FF', emoji: '🔵' },
+  { nome: 'PIX',             cor: '#00D084', emoji: '💚' },
+  { nome: 'Dinheiro',        cor: '#8B949E', emoji: '💵' },
+  { nome: 'Débito',          cor: '#BC8CFF', emoji: '💜' },
+  { nome: 'Crédito',         cor: '#FF6B6B', emoji: '💳' },
+];
+function getCartao(nome) {
+  if (!nome) return { cor: '#8B949E', emoji: '❓' };
+  const n = nome.toLowerCase();
+  for (const c of CARTOES) {
+    if (n.includes(c.nome.toLowerCase())) return c;
+  }
+  return { cor: '#8B949E', emoji: '💳' };
+}
+
 // ── ESTADO ──
 let mesAtual = null;
 let anoAtual = null;
 let todosCupons = [];
+let cuponsDoMes = [];
+let filtroAtivo = 'todos';
 
 // ── INICIALIZAÇÃO ──
 carregarCfg();
@@ -613,6 +672,65 @@ function renderMetas(cats) {
       <div class="goal-bar-track"><div class="goal-bar-fill" style="width:${pct}%;background:${over?'var(--red)':s.color}"></div></div>
     </div>`;
   }).join('');
+}
+
+function renderCartoes(cupons) {
+  const pagtoTag = document.getElementById('pagtoTag');
+  const chart    = document.getElementById('pagtoChart');
+  if (!cupons.length) {
+    chart.innerHTML = '<p style="color:var(--muted);font-size:13px">Nenhum dado para este mês.</p>';
+    return;
+  }
+
+  // Normaliza forma de pagamento
+  function normalizarPagto(raw) {
+    if (!raw || raw === 'null' || raw.trim() === '') return 'Não informado';
+    const r = raw.trim();
+    for (const c of CARTOES) {
+      if (r.toLowerCase().includes(c.nome.toLowerCase())) return c.nome;
+    }
+    return r;
+  }
+
+  const mapa = {};
+  cupons.forEach(c => {
+    const pagto = normalizarPagto(c['Forma Pagamento']);
+    mapa[pagto] = (mapa[pagto] || 0) + parseFloat(c['Total'] || 0);
+  });
+
+  const lista = Object.entries(mapa).sort((a,b) => b[1]-a[1]);
+  const maxVal = lista[0]?.[1] || 1;
+  const total  = lista.reduce((s,[,v]) => s+v, 0);
+
+  pagtoTag.textContent = `R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})} total`;
+
+  chart.innerHTML = lista.map(([nome, val]) => {
+    const c   = getCartao(nome);
+    const pct = Math.round((val/maxVal)*100);
+    const pctTotal = Math.round((val/total)*100);
+    return `<div class="pagto-row">
+      <div class="pagto-name">${c.emoji} ${nome}</div>
+      <div class="pagto-bar-track"><div class="pagto-bar-fill" style="width:${pct}%;background:${c.cor}"></div></div>
+      <div class="pagto-value">R$ ${val.toLocaleString('pt-BR',{minimumFractionDigits:2})} · ${pctTotal}%</div>
+    </div>`;
+  }).join('');
+}
+
+function filtrarCartao(cartao, el) {
+  filtroAtivo = cartao;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+
+  if (cartao === 'todos') {
+    renderFeed(cuponsDoMes);
+    return;
+  }
+
+  const filtrados = cuponsDoMes.filter(c => {
+    const pagto = (c['Forma Pagamento'] || '').toLowerCase();
+    return pagto.includes(cartao.toLowerCase());
+  });
+  renderFeed(filtrados);
 }
 
 function renderFeed(cupons) {
