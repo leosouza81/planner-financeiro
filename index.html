@@ -29,7 +29,7 @@
     background: var(--bg);
     color: var(--text);
     font-family: 'Inter', sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.5;
     min-height: 100vh;
   }
@@ -66,7 +66,7 @@
     background: var(--green);
     border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
+    font-size: 16px;
   }
   .topbar-right {
     display: flex;
@@ -124,7 +124,7 @@
     align-items: center;
     gap: 10px;
     padding: 9px 20px;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 500;
     color: var(--muted);
     cursor: pointer;
@@ -171,7 +171,7 @@
   }
   .page-title {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 22px;
+    font-size: 26px;
     font-weight: 700;
     letter-spacing: -0.4px;
   }
@@ -203,10 +203,10 @@
   .kpi-card.yellow::before{ background: var(--yellow); }
   .kpi-card.blue::before  { background: var(--blue); }
 
-  .kpi-label { font-size: 11px; font-weight: 600; letter-spacing: .6px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .kpi-label { font-size: 13px; font-weight: 600; letter-spacing: .6px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
   .kpi-value {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 26px;
+    font-size: 32px;
     font-weight: 700;
     letter-spacing: -1px;
     line-height: 1;
@@ -217,7 +217,7 @@
   .kpi-card.blue  .kpi-value { color: var(--blue); }
   .kpi-delta {
     margin-top: 8px;
-    font-size: 12px;
+    font-size: 13px;
     color: var(--muted);
     display: flex;
     align-items: center;
@@ -239,7 +239,7 @@
   }
   .card-title {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     color: var(--text);
     margin-bottom: 16px;
@@ -322,7 +322,7 @@
   .feed-info { flex: 1; min-width: 0; }
   .feed-store {
     font-weight: 600;
-    font-size: 13px;
+    font-size: 15px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -337,7 +337,7 @@
   .feed-right { text-align: right; flex-shrink: 0; }
   .feed-value {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 700;
     color: var(--red);
   }
@@ -486,23 +486,23 @@
     <div class="kpi-grid">
       <div class="kpi-card red">
         <div class="kpi-label">Gasto no mês</div>
-        <div class="kpi-value">3.847</div>
-        <div class="kpi-delta"><span class="delta-up">↑ 12%</span> vs maio</div>
+        <div class="kpi-value" id="kpi-total">—</div>
+        <div class="kpi-delta" id="kpi-total-sub">carregando...</div>
       </div>
       <div class="kpi-card green">
         <div class="kpi-label">Saldo disponível</div>
-        <div class="kpi-value">1.153</div>
+        <div class="kpi-value" id="kpi-saldo">—</div>
         <div class="kpi-delta">de R$ 5.000 planejados</div>
       </div>
       <div class="kpi-card yellow">
         <div class="kpi-label">Cupons este mês</div>
-        <div class="kpi-value">23</div>
-        <div class="kpi-delta">3 processados hoje</div>
+        <div class="kpi-value" id="kpi-cupons">—</div>
+        <div class="kpi-delta" id="kpi-cupons-sub">carregando...</div>
       </div>
       <div class="kpi-card blue">
         <div class="kpi-label">Ticket médio</div>
-        <div class="kpi-value">167</div>
-        <div class="kpi-delta"><span class="delta-down">↓ 8%</span> vs maio</div>
+        <div class="kpi-value" id="kpi-ticket">—</div>
+        <div class="kpi-delta">por cupom</div>
       </div>
     </div>
 
@@ -617,10 +617,12 @@ function renderKPIs(resumo) {
   const total = resumo.total || 0;
   const orcamento = 5000;
   const saldo = orcamento - total;
-  document.querySelector('.kpi-card.red .kpi-value').textContent = total.toLocaleString('pt-BR', {minimumFractionDigits:0, maximumFractionDigits:0});
-  document.querySelector('.kpi-card.green .kpi-value').textContent = Math.max(0,saldo).toLocaleString('pt-BR', {minimumFractionDigits:0, maximumFractionDigits:0});
-  document.querySelector('.kpi-card.yellow .kpi-value').textContent = resumo.n_cupons || 0;
-  document.querySelector('.kpi-card.blue .kpi-value').textContent = (resumo.ticket_medio || 0).toLocaleString('pt-BR', {minimumFractionDigits:0, maximumFractionDigits:0});
+  document.getElementById('kpi-total').textContent = total.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('kpi-saldo').textContent = Math.max(0,saldo).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('kpi-cupons').textContent = resumo.n_cupons || 0;
+  document.getElementById('kpi-ticket').textContent = (resumo.ticket_medio || 0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('kpi-total-sub').textContent = resumo.mes || 'Este mês';
+  document.getElementById('kpi-cupons-sub').textContent = resumo.n_itens + ' itens registrados';
   document.querySelector('.page-title').textContent = resumo.mes || 'Este mês';
   document.querySelector('.page-sub').textContent = `Atualizado agora · ${resumo.n_cupons || 0} cupons processados`;
 }
