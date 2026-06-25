@@ -177,6 +177,53 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
+  /* PÁGINAS EXTRAS */
+  .page { display: none; }
+  .page.active { display: flex; flex-direction: column; gap: 20px; }
+
+  /* BUSCA */
+  .search-bar { display: flex; gap: 10px; align-items: center; }
+  .search-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; padding: 9px 14px; border-radius: 8px; }
+  .search-input:focus { outline: none; border-color: var(--blue); }
+  .search-input::placeholder { color: var(--muted); }
+
+  /* TABELA */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { text-align: left; padding: 10px 14px; color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: .6px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+  tbody tr:hover { background: var(--surface2); }
+  tbody td { padding: 11px 14px; }
+  tbody tr:last-child { border-bottom: none; }
+
+  /* HISTÓRICO */
+  .hist-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+  .hist-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .hist-mes { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .hist-valor { font-family: 'Space Grotesk',sans-serif; font-size: 20px; font-weight: 700; color: var(--text); }
+  .hist-bar-track { height: 4px; background: var(--border); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+  .hist-bar-fill { height: 100%; border-radius: 2px; background: var(--green); }
+
+  /* METAS CONFIG */
+  .meta-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .meta-item:last-child { border-bottom: none; }
+  .meta-emoji { font-size: 20px; width: 32px; text-align: center; flex-shrink: 0; }
+  .meta-nome { flex: 1; font-size: 14px; font-weight: 500; }
+  .meta-input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: 'Inter',sans-serif; font-size: 14px; padding: 7px 12px; border-radius: 8px; width: 130px; text-align: right; }
+  .meta-input:focus { outline: none; border-color: var(--green); }
+  .meta-gasto { font-size: 13px; color: var(--muted); width: 100px; text-align: right; flex-shrink: 0; }
+  .meta-pct { font-size: 12px; font-weight: 600; width: 48px; text-align: right; flex-shrink: 0; }
+
+  /* CAT DETALHE */
+  .cat-detalhe-grid { display: flex; flex-direction: column; gap: 20px; }
+  .cat-detalhe-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .cat-detalhe-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .cat-detalhe-nome { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .cat-detalhe-total { font-family: 'Space Grotesk',sans-serif; font-size: 18px; font-weight: 700; color: var(--red); }
+  .cat-itens-list { display: flex; flex-direction: column; gap: 6px; }
+  .cat-item-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); padding: 4px 0; border-bottom: 1px solid var(--border); }
+  .cat-item-row:last-child { border-bottom: none; }
+
   @media (max-width: 900px) {
     .shell { grid-template-columns: 1fr; }
     .sidebar { display: none; }
@@ -209,23 +256,23 @@
   <!-- SIDEBAR -->
   <nav class="sidebar">
     <span class="sidebar-label">Navegação</span>
-    <div class="nav-item active">
+    <div class="nav-item active" onclick="navegar('visao-geral',this)">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
       Visão Geral
     </div>
-    <div class="nav-item">
+    <div class="nav-item" onclick="navegar('cupons',this)">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
       Cupons
     </div>
-    <div class="nav-item">
+    <div class="nav-item" onclick="navegar('categorias',this)">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
       Categorias
     </div>
-    <div class="nav-item">
+    <div class="nav-item" onclick="navegar('historico',this)">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       Histórico
     </div>
-    <div class="nav-item">
+    <div class="nav-item" onclick="navegar('metas',this)">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
       Metas
     </div>
@@ -244,8 +291,9 @@
   </nav>
 
   <!-- MAIN -->
-  <main class="main">
+  <main class="main" id="mainArea">
 
+    <div class="page active" id="pg-visao-geral">
     <div class="page-header">
       <div>
         <div class="page-title" id="pageTitle">Carregando...</div>
@@ -340,6 +388,106 @@
         <div class="filter-chip" onclick="filtrarCartao('Dinheiro', this)">Dinheiro</div>
       </div>
       <div class="feed" id="feedContainer"><div class="loading">Carregando...</div></div>
+    </div>
+
+    </div><!-- /pg-visao-geral -->
+
+    <!-- PÁGINA: CUPONS -->
+    <div class="page" id="pg-cupons">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Cupons</div>
+          <div class="page-sub" id="cupons-sub">Lista completa de lançamentos</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="search-bar" style="margin-bottom:16px">
+          <input class="search-input" id="cupons-search" placeholder="🔍 Buscar por estabelecimento, categoria..." oninput="filtrarCupons()">
+          <select class="month-selector" id="cupons-cat-filter" onchange="filtrarCupons()">
+            <option value="">Todas categorias</option>
+            <option>Mercado / Alimentação</option>
+            <option>Restaurante / Delivery</option>
+            <option>Combustível</option>
+            <option>Farmácia / Saúde</option>
+            <option>Higiene / Limpeza</option>
+            <option>Vestuário</option>
+            <option>Eletrônicos</option>
+            <option>Transporte</option>
+            <option>Lazer / Entretenimento</option>
+            <option>Educação</option>
+            <option>Serviços</option>
+            <option>Outros</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table id="cupons-table">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Estabelecimento</th>
+                <th>Categoria</th>
+                <th>Forma Pagto.</th>
+                <th>Itens</th>
+                <th style="text-align:right">Total</th>
+              </tr>
+            </thead>
+            <tbody id="cupons-tbody">
+              <tr><td colspan="6" style="color:var(--muted);padding:20px;text-align:center">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="cupons-count" style="margin-top:12px;font-size:12px;color:var(--muted)"></div>
+      </div>
+    </div>
+
+    <!-- PÁGINA: CATEGORIAS -->
+    <div class="page" id="pg-categorias">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Categorias</div>
+          <div class="page-sub">Detalhamento por categoria</div>
+        </div>
+      </div>
+      <div class="cat-detalhe-grid" id="cat-detalhe-container">
+        <div class="loading">Carregando...</div>
+      </div>
+    </div>
+
+    <!-- PÁGINA: HISTÓRICO -->
+    <div class="page" id="pg-historico">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Histórico</div>
+          <div class="page-sub">Comparativo entre meses</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Gasto Total por Mês</div>
+        <div class="hist-grid" id="hist-grid"><div class="loading">Carregando...</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Evolução Mensal</div>
+        <div style="display:flex;align-items:flex-end;gap:8px;height:120px;padding-top:8px" id="hist-bars"></div>
+      </div>
+    </div>
+
+    <!-- PÁGINA: METAS -->
+    <div class="page" id="pg-metas">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Metas por Categoria</div>
+          <div class="page-sub">Defina o limite mensal de cada categoria</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Limites Mensais</div>
+        <div id="metas-lista"><div class="loading">Carregando...</div></div>
+        <button class="save-btn" style="margin-top:16px" onclick="salvarMetas()">💾 Salvar metas</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Progresso do Mês Atual</div>
+        <div id="metas-progresso"><div class="loading">Carregando...</div></div>
+      </div>
     </div>
 
   </main>
@@ -822,6 +970,266 @@ function renderFeed(cupons) {
       </div>
     </div>`;
   }).join('');
+}
+
+// ── NAVEGAÇÃO ──
+let paginaAtual = 'visao-geral';
+let todosCuponsGlobal = []; // todos os cupons de todos os meses
+
+function navegar(pagina, el) {
+  // Atualiza nav
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+
+  // Troca página
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('pg-' + pagina).classList.add('active');
+  paginaAtual = pagina;
+
+  // Carrega conteúdo da página
+  if (pagina === 'cupons')      renderPaginaCupons();
+  if (pagina === 'categorias')  renderPaginaCategorias();
+  if (pagina === 'historico')   renderPaginaHistorico();
+  if (pagina === 'metas')       renderPaginaMetas();
+}
+
+// ── PÁGINA CUPONS ──
+let cuponsParaExibir = [];
+
+function renderPaginaCupons() {
+  cuponsParaExibir = cuponsDoMes.slice();
+  renderTabelaCupons(cuponsParaExibir);
+}
+
+function filtrarCupons() {
+  const termo = document.getElementById('cupons-search').value.toLowerCase();
+  const cat   = document.getElementById('cupons-cat-filter').value;
+  cuponsParaExibir = cuponsDoMes.filter(c => {
+    const estab = String(c['Estabelecimento']||'').toLowerCase();
+    const catC  = String(c['Categoria']||'').toLowerCase();
+    const obs   = String(c['Observações']||'').toLowerCase();
+    const matchTermo = !termo || estab.includes(termo) || catC.includes(termo) || obs.includes(termo);
+    const matchCat   = !cat || c['Categoria'] === cat;
+    return matchTermo && matchCat;
+  });
+  renderTabelaCupons(cuponsParaExibir);
+}
+
+function renderTabelaCupons(cupons) {
+  const total = cupons.reduce((s,c) => s + parseFloat(c['Total']||0), 0);
+  document.getElementById('cupons-sub').textContent = `${cupons.length} lançamentos · R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})} total`;
+  document.getElementById('cupons-count').textContent = `${cupons.length} registro(s) encontrado(s)`;
+
+  if (!cupons.length) {
+    document.getElementById('cupons-tbody').innerHTML = '<tr><td colspan="6" style="color:var(--muted);padding:20px;text-align:center">Nenhum resultado.</td></tr>';
+    return;
+  }
+
+  document.getElementById('cupons-tbody').innerHTML = cupons.map(c => {
+    const s = getCat(c['Categoria']);
+    const data = formatarData(c['Data']);
+    const pagto = normalizarPagtoFiltro(c['Forma Pagamento']);
+    return `<tr>
+      <td style="color:var(--muted)">${data}</td>
+      <td style="font-weight:500">${c['Estabelecimento']||'—'}</td>
+      <td><span style="background:${s.color}22;color:${s.color};padding:2px 8px;border-radius:4px;font-size:12px">${s.emoji} ${c['Categoria']||'—'}</span></td>
+      <td style="color:var(--muted);font-size:13px">${pagto}</td>
+      <td style="color:var(--muted)">${c['Qtd Itens']||'?'}</td>
+      <td style="text-align:right;font-family:'Space Grotesk',sans-serif;font-weight:600;color:var(--red)">R$ ${parseFloat(c['Total']||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── PÁGINA CATEGORIAS ──
+function renderPaginaCategorias() {
+  const container = document.getElementById('cat-detalhe-container');
+  if (!cuponsDoMes.length) {
+    container.innerHTML = '<p style="color:var(--muted)">Nenhum dado para este mês.</p>';
+    return;
+  }
+
+  // Agrupa cupons por categoria
+  const porCat = {};
+  cuponsDoMes.forEach(c => {
+    const cat = c['Categoria'] || 'Outros';
+    if (!porCat[cat]) porCat[cat] = { total: 0, cupons: [] };
+    porCat[cat].total += parseFloat(c['Total']||0);
+    porCat[cat].cupons.push(c);
+  });
+
+  const lista = Object.entries(porCat).sort((a,b) => b[1].total - a[1].total);
+  const totalGeral = lista.reduce((s,[,v]) => s + v.total, 0);
+
+  container.innerHTML = lista.map(([cat, dados]) => {
+    const s = getCat(cat);
+    const pct = totalGeral > 0 ? Math.round((dados.total/totalGeral)*100) : 0;
+    const meta = cfg.metas?.[cat] || 0;
+    const pctMeta = meta > 0 ? Math.min(100, Math.round((dados.total/meta)*100)) : 0;
+
+    // Top 5 estabelecimentos
+    const porEstab = {};
+    dados.cupons.forEach(c => {
+      const e = c['Estabelecimento']||'Desconhecido';
+      porEstab[e] = (porEstab[e]||0) + parseFloat(c['Total']||0);
+    });
+    const topEstab = Object.entries(porEstab).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+    return `<div class="cat-detalhe-card">
+      <div class="cat-detalhe-header">
+        <div class="cat-detalhe-nome">${s.emoji} ${cat}</div>
+        <div class="cat-detalhe-total">R$ ${dados.total.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+      </div>
+      <div style="display:flex;gap:16px;margin-bottom:12px;font-size:13px;color:var(--muted)">
+        <span>${dados.cupons.length} lançamento(s)</span>
+        <span>${pct}% do total</span>
+        ${meta > 0 ? `<span style="color:${pctMeta>100?'var(--red)':'var(--green)'}">${pctMeta}% da meta</span>` : ''}
+      </div>
+      ${meta > 0 ? `<div class="bar-track" style="margin-bottom:12px"><div class="bar-fill" style="width:${pctMeta}%;background:${pctMeta>100?'var(--red)':s.color}"></div></div>` : ''}
+      <div class="cat-itens-list">
+        ${topEstab.map(([e,v]) => `<div class="cat-item-row"><span>${e}</span><span style="color:var(--text);font-weight:500">R$ ${v.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span></div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── PÁGINA HISTÓRICO ──
+async function renderPaginaHistorico() {
+  document.getElementById('hist-grid').innerHTML = '<div class="loading">Carregando histórico...</div>';
+
+  // Busca todos os cupons para descobrir meses
+  try {
+    const todos = await jsonpFetch(`${APPS_SCRIPT_URL}?action=listar_cupons`);
+    const cuponsAll = todos.cupons || [];
+
+    // Agrupa por mês/ano
+    const porMes = {};
+    cuponsAll.forEach(c => {
+      const raw = c['Data'] || '';
+      let m = 0, a = 0;
+      const s = String(raw);
+      if (s.includes('/')) { const p = s.split('/'); m=parseInt(p[1]); a=parseInt(p[2]); }
+      else if (s.includes('T')) { const d=new Date(s); if(!isNaN(d)){m=d.getUTCMonth()+1;a=d.getUTCFullYear();} }
+      if (!m || !a) return;
+      const key = `${a}-${String(m).padStart(2,'0')}`;
+      if (!porMes[key]) porMes[key] = { mes: m, ano: a, total: 0, n: 0 };
+      porMes[key].total += parseFloat(c['Total']||0);
+      porMes[key].n++;
+    });
+
+    const mesesOrdenados = Object.entries(porMes).sort((a,b) => b[0].localeCompare(a[0]));
+    const maxTotal = Math.max(...mesesOrdenados.map(([,v])=>v.total), 1);
+
+    // Cards
+    document.getElementById('hist-grid').innerHTML = mesesOrdenados.map(([key, v]) => {
+      const pct = Math.round((v.total/maxTotal)*100);
+      return `<div class="hist-card">
+        <div class="hist-mes">${MESES_NOME[v.mes-1]} ${v.ano}</div>
+        <div class="hist-valor">R$ ${v.total.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${v.n} lançamento(s)</div>
+        <div class="hist-bar-track"><div class="hist-bar-fill" style="width:${pct}%"></div></div>
+      </div>`;
+    }).join('') || '<p style="color:var(--muted)">Nenhum dado disponível.</p>';
+
+    // Barras de evolução
+    const ultimos = mesesOrdenados.slice(0,6).reverse();
+    document.getElementById('hist-bars').innerHTML = ultimos.map(([key,v]) => {
+      const h = Math.max(8, Math.round((v.total/maxTotal)*100));
+      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+        <div style="font-size:11px;color:var(--muted);font-weight:600">R$ ${Math.round(v.total/1000)}k</div>
+        <div style="width:100%;height:${h}px;background:var(--green);border-radius:4px 4px 0 0;min-height:6px"></div>
+        <div style="font-size:10px;color:var(--muted)">${MESES_NOME[v.mes-1].slice(0,3)}</div>
+      </div>`;
+    }).join('');
+
+  } catch(e) {
+    document.getElementById('hist-grid').innerHTML = '<p style="color:var(--muted)">Erro ao carregar histórico.</p>';
+  }
+}
+
+// ── PÁGINA METAS ──
+function renderPaginaMetas() {
+  if (!cfg.metas) cfg.metas = {};
+
+  const CATS = [
+    "Mercado / Alimentação","Restaurante / Delivery","Combustível",
+    "Farmácia / Saúde","Higiene / Limpeza","Vestuário","Eletrônicos",
+    "Transporte","Lazer / Entretenimento","Educação","Serviços","Outros"
+  ];
+
+  // Gastos do mês atual por categoria
+  const gastoCat = {};
+  cuponsDoMes.forEach(c => {
+    const cat = c['Categoria']||'Outros';
+    gastoCat[cat] = (gastoCat[cat]||0) + parseFloat(c['Total']||0);
+  });
+
+  document.getElementById('metas-lista').innerHTML = CATS.map(cat => {
+    const s = getCat(cat);
+    const meta = cfg.metas[cat] || '';
+    const gasto = gastoCat[cat] || 0;
+    const pct = meta > 0 ? Math.min(100, Math.round((gasto/meta)*100)) : 0;
+    const over = meta > 0 && gasto > meta;
+    return `<div class="meta-item">
+      <div class="meta-emoji">${s.emoji}</div>
+      <div class="meta-nome">${cat}</div>
+      <div class="meta-gasto" style="color:${over?'var(--red)':'var(--muted)'}">R$ ${gasto.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+      <div class="meta-pct" style="color:${over?'var(--red)':pct>80?'var(--yellow)':'var(--green)'}">${meta>0?pct+'%':''}</div>
+      <input class="meta-input" type="number" placeholder="Sem limite" min="0" step="50"
+        id="meta-${cat.replace(/[^a-z]/gi,'_')}"
+        value="${meta||''}"
+        data-cat="${cat}">
+    </div>`;
+  }).join('');
+
+  // Progresso
+  renderMetasProgresso(gastoCat);
+}
+
+function renderMetasProgresso(gastoCat) {
+  if (!cfg.metas) { document.getElementById('metas-progresso').innerHTML = '<p style="color:var(--muted)">Defina metas acima para ver o progresso.</p>'; return; }
+  const comMeta = Object.entries(cfg.metas).filter(([,v])=>v>0);
+  if (!comMeta.length) { document.getElementById('metas-progresso').innerHTML = '<p style="color:var(--muted)">Nenhuma meta definida ainda.</p>'; return; }
+
+  document.getElementById('metas-progresso').innerHTML = comMeta.map(([cat, meta]) => {
+    const s = getCat(cat);
+    const gasto = gastoCat?.[cat] || 0;
+    const pct = Math.min(100, Math.round((gasto/meta)*100));
+    const over = gasto > meta;
+    return `<div class="goal-item">
+      <div class="goal-top">
+        <span class="goal-name">${s.emoji} ${cat}</span>
+        <span class="goal-vals" style="color:${over?'var(--red)':'var(--muted)'}">
+          R$ ${gasto.toLocaleString('pt-BR',{minimumFractionDigits:2})} / R$ ${meta.toLocaleString('pt-BR')}
+          ${over ? ' ⚠️' : ''}
+        </span>
+      </div>
+      <div class="goal-bar-track"><div class="goal-bar-fill" style="width:${pct}%;background:${over?'var(--red)':s.color}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function salvarMetas() {
+  if (!cfg.metas) cfg.metas = {};
+  document.querySelectorAll('.meta-input').forEach(input => {
+    const cat = input.dataset.cat;
+    const val = parseFloat(input.value);
+    if (val > 0) cfg.metas[cat] = val;
+    else delete cfg.metas[cat];
+  });
+  salvarCfg();
+
+  // Atualiza progresso
+  const gastoCat = {};
+  cuponsDoMes.forEach(c => {
+    const cat = c['Categoria']||'Outros';
+    gastoCat[cat] = (gastoCat[cat]||0) + parseFloat(c['Total']||0);
+  });
+  renderMetasProgresso(gastoCat);
+
+  // Feedback visual
+  const btn = document.querySelector('#pg-metas .save-btn');
+  btn.textContent = '✅ Salvo!';
+  setTimeout(() => btn.textContent = '💾 Salvar metas', 2000);
 }
 
 // ── CONFIGURAÇÕES ──
