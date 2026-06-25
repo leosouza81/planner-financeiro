@@ -457,7 +457,7 @@ async function iniciar() {
 
   // Descobre meses disponíveis a partir dos cupons
   try {
-    const r = await fetch(`${APPS_SCRIPT_URL}?action=listar_cupons`);
+    const r = await jsonpFetch(`${APPS_SCRIPT_URL}?action=listar_cupons`);
     const d = await r.json();
     todosCupons = d.cupons || [];
     popularSeletorMeses(todosCupons);
@@ -512,17 +512,34 @@ function trocarMes(val) {
   carregarDados(m, a);
 }
 
+function jsonpFetch(url) {
+  return new Promise((resolve, reject) => {
+    const cb = 'cb_' + Math.random().toString(36).slice(2);
+    const script = document.createElement('script');
+    window[cb] = (data) => {
+      delete window[cb];
+      document.body.removeChild(script);
+      resolve(data);
+    };
+    script.onerror = () => {
+      delete window[cb];
+      document.body.removeChild(script);
+      reject(new Error('JSONP error'));
+    };
+    script.src = url + '&callback=' + cb;
+    document.body.appendChild(script);
+  });
+}
+
 async function carregarDados(mes, ano) {
   document.getElementById('pageSub').textContent = 'Atualizando...';
   try {
-    const [resR, catR, cupR] = await Promise.all([
-      fetch(`${APPS_SCRIPT_URL}?action=resumo_mes&mes=${mes}&ano=${ano}`),
-      fetch(`${APPS_SCRIPT_URL}?action=categorias_mes&mes=${mes}&ano=${ano}`),
-      fetch(`${APPS_SCRIPT_URL}?action=listar_cupons&mes=${mes}&ano=${ano}`),
+    const base = `${APPS_SCRIPT_URL}&mes=${mes}&ano=${ano}`;
+    const [resumo, catData, cupData] = await Promise.all([
+      jsonpFetch(`${APPS_SCRIPT_URL}?action=resumo_mes&mes=${mes}&ano=${ano}`),
+      jsonpFetch(`${APPS_SCRIPT_URL}?action=categorias_mes&mes=${mes}&ano=${ano}`),
+      jsonpFetch(`${APPS_SCRIPT_URL}?action=listar_cupons&mes=${mes}&ano=${ano}`),
     ]);
-    const resumo = await resR.json();
-    const catData = await catR.json();
-    const cupData = await cupR.json();
 
     const cats   = catData.categorias || [];
     const cupons = cupData.cupons     || [];
