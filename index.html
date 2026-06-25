@@ -660,11 +660,21 @@ function renderTimeline(cupons, mes, ano) {
   const diasNoMes = new Date(ano, mes, 0).getDate();
   const por_dia = {};
   cupons.forEach(c => {
-    const parts = (c['Data']||'').split('/');
-    if (parts.length === 3) {
-      const dia = String(parseInt(parts[0])).padStart(2,'0');
-      por_dia[dia] = (por_dia[dia]||0) + parseFloat(c['Total']||0);
+    const raw = c['Data'] || '';
+    let dia = null;
+    const s = String(raw);
+    if (s.includes('/')) {
+      // DD/MM/AAAA
+      const parts = s.split('/');
+      if (parts.length === 3) dia = String(parseInt(parts[0])).padStart(2,'0');
+    } else if (s.includes('T') || s.includes('-')) {
+      // ISO: 2026-06-25T03:00:00.000Z
+      try {
+        const d = new Date(s);
+        if (!isNaN(d)) dia = String(d.getUTCDate()).padStart(2,'0');
+      } catch(e) {}
     }
+    if (dia) por_dia[dia] = (por_dia[dia]||0) + parseFloat(c['Total']||0);
   });
   const vals = Array.from({length: diasNoMes}, (_,i) => por_dia[String(i+1).padStart(2,'0')] || 0);
   const tlMax = Math.max(...vals, 1);
