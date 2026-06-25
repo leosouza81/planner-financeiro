@@ -674,6 +674,35 @@ function renderMetas(cats) {
   }).join('');
 }
 
+function formatarData(raw) {
+  if (!raw) return '';
+  const s = String(raw);
+  // Já está em DD/MM/AAAA
+  if (s.includes('/')) return s;
+  // Formato ISO
+  try {
+    const d = new Date(s);
+    if (!isNaN(d)) {
+      return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    }
+  } catch(e) {}
+  return s;
+}
+
+function formatarHora(raw) {
+  if (!raw) return '';
+  const s = String(raw);
+  if (!s || s === 'null' || s === '') return '';
+  // Formato ISO de hora (1899-12-30T13:46:28.000Z = horário do Sheets)
+  if (s.includes('T')) {
+    try {
+      const d = new Date(s);
+      if (!isNaN(d)) return `${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')}`;
+    } catch(e) {}
+  }
+  return s;
+}
+
 function renderCartoes(cupons) {
   const pagtoTag = document.getElementById('pagtoTag');
   const chart    = document.getElementById('pagtoChart');
@@ -684,8 +713,8 @@ function renderCartoes(cupons) {
 
   // Normaliza forma de pagamento
   function normalizarPagto(raw) {
-    if (!raw || raw === 'null' || raw.trim() === '') return 'Não informado';
-    const r = raw.trim();
+    if (!raw || raw === 'null' || String(raw).trim() === '') return 'Não informado';
+    const r = String(raw).trim();
     for (const c of CARTOES) {
       if (r.toLowerCase().includes(c.nome.toLowerCase())) return c.nome;
     }
@@ -727,7 +756,7 @@ function filtrarCartao(cartao, el) {
   }
 
   const filtrados = cuponsDoMes.filter(c => {
-    const pagto = (c['Forma Pagamento'] || '').toLowerCase();
+    const pagto = String(c['Forma Pagamento'] || '').toLowerCase();
     return pagto.includes(cartao.toLowerCase());
   });
   renderFeed(filtrados);
@@ -737,12 +766,14 @@ function renderFeed(cupons) {
   if (!cupons.length) { document.getElementById('feedContainer').innerHTML = '<p style="color:var(--muted);font-size:13px;padding:20px 0">Nenhum cupom neste mês. Envie uma foto pelo Telegram!</p>'; return; }
   document.getElementById('feedContainer').innerHTML = cupons.slice(0,15).map(c => {
     const s = getCat(c['Categoria']);
+    const dataFmt = formatarData(c['Data']);
+    const horaFmt = formatarHora(c['Hora']);
     return `<div class="feed-item">
       <div class="feed-thumb" style="background:${s.color}22">${s.emoji}</div>
       <div class="feed-info">
         <div class="feed-store">${c['Estabelecimento']||'Desconhecido'}</div>
         <div class="feed-meta">
-          <span>${c['Data']||''} ${c['Hora']||''}</span>
+          <span>${dataFmt} ${horaFmt}</span>
           <span class="feed-cat" style="background:${s.color}22;color:${s.color}">${s.emoji} ${c['Categoria']||'—'}</span>
         </div>
       </div>
